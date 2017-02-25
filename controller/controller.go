@@ -25,7 +25,12 @@ func initRouter() *mux.Router {
 
 // PrefixRequest returns a subrouter prefixed to the value
 func PrefixRequest(value string) *mux.Router {
-  return router.PathPrefix(value).Subrouter()
+  return router.PathPrefix(value).Subrouter().StrictSlash(true)
+}
+
+// PrefixRequestWithHandler prefixes the request with Middleware
+func PrefixRequestWithHandler(value string, h http.Handler){
+  router.PathPrefix(value).Handler( h )
 }
 
 // MapRequestToSubRouter maps a request to the sub router
@@ -35,9 +40,7 @@ func MapRequestToSubRouter(
   method string,
   handler http.Handler,
 ) *mux.Route {
-
   return r.Handle(path, handler).Methods(method)
-
 }
 
 // MapRequest maps a request to the main router
@@ -46,9 +49,7 @@ func MapRequest(
   method string,
   handler http.Handler,
 ) *mux.Route {
-
   return MapRequestToSubRouter(router, path, method, handler)
-
 }
 
 // MapRequestToSubRouterFunc maps a request to the sub router
@@ -58,11 +59,8 @@ func MapRequestToSubRouterFunc(
   method string,
   f http.HandlerFunc,
 ) *mux.Route {
-
   return r.HandleFunc(path, f).Methods(method)
-
 }
-
 
 // MapRequestFunc maps a request to the main router
 func MapRequestFunc(
