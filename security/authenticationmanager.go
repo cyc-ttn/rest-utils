@@ -6,7 +6,7 @@ import (
 
 // UserDetailsService provides user details for the proper user
 type UserDetailsService interface{
-  LoadByUserID(int) UserDetails
+  LoadByUsername(string) UserDetails
 }
 
 // AuthenticationManager Manages authentications

@@ -7,7 +7,7 @@ import (
   "net/http"
 )
 
-// JSONFromRequest returns a JSON value from a request
+// JSONFromRequest returns a map from a JSON value from a request
 func JSONFromRequest( r * http.Request ) (map[string]interface{}, error) {
 
   decoder := json.NewDecoder(r.Body)
@@ -21,6 +21,20 @@ func JSONFromRequest( r * http.Request ) (map[string]interface{}, error) {
   }
 
   return t, nil
+}
+
+// JSONFromRequestToStruct returns a Struct from a JSON value from a request
+func JSONFromRequestToStruct( r * http.Request, v interface{}) error{
+  decoder := json.NewDecoder(r.Body)
+
+  err := decoder.Decode(&v)
+  defer r.Body.Close()
+
+  if err != nil {
+    return err
+  }
+
+  return nil
 }
 
 // JSONHandlerFunc Wraps the input function and passes in data as a JSON variable

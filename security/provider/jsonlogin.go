@@ -17,8 +17,8 @@ type JSONLoginAuthenticationProvider struct {
 // NewJSONLoginAuthenticationProvider creates a new FormLoginAuthenticationProvider
 func NewJSONLoginAuthenticationProvider() *JSONLoginAuthenticationProvider{
   return &JSONLoginAuthenticationProvider{
-    userIDField: "username",
-    passwordField: "password",
+    userIDField: "Username",
+    passwordField: "Password",
   }
 }
 
@@ -36,17 +36,16 @@ func (p * JSONLoginAuthenticationProvider) Authenticate (
   idAsIf, ok := body[ p.userIDField ]
   if !ok { return nil }
 
-  id, ok := idAsIf.(int)
+  id, ok := idAsIf.(string)
   if !ok{ return nil }
 
   password, ok := body[ p.passwordField ]
   if !ok { return nil }
 
-  details := usrSrv.LoadByUserID(id)
-
-  if details.Verify(password) {
-    return details
+  details := usrSrv.LoadByUsername(id)
+  if details == nil || !details.Verify(password) {
+    return nil
   }
 
-  return nil
+  return details
 }
