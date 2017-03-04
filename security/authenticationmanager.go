@@ -47,7 +47,7 @@ func (mgr * AuthenticationManager) AddProvider(auth AuthenticationProvider) (
 }
 
 // Authenticate authenticates the current connection
-func (mgr * AuthenticationManager) Authenticate( req *http.Request ) UserDetails {
+func (mgr * AuthenticationManager) Authenticate(req *http.Request ) UserDetails {
   for _, prov := range mgr.providers {
     if userDetails := prov.Authenticate(req, mgr.userSrv); userDetails != nil{
       return userDetails

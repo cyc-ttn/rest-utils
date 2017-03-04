@@ -6,13 +6,16 @@ import (
 )
 
 type key string
-const principalKey key = "Principal"
+
+// PrincipalKey for use in storing in context
+const PrincipalKey key = "Principal"
 
 // AuthenticationProvider interface
 // provides different methods of authentication
 type AuthenticationProvider interface{
   Authenticate(*http.Request, UserDetailsService) UserDetails
 }
+
 
 // AuthenticatorMiddleware authenticates a request
 // and passes to the next middleware if the authentication succeeds
@@ -27,7 +30,7 @@ func AuthenticatorMiddleware(
 
     // If authenticated properly, add authentication "principal" in context
     if userDetails := mgr.Authenticate(r); userDetails != nil {
-      newCtx := context.WithValue(r.Context(), principalKey, userDetails)
+      newCtx := context.WithValue(r.Context(), PrincipalKey, userDetails)
       next(rw, r.WithContext(newCtx) )
     }else{
       failure(rw, r)
@@ -45,7 +48,7 @@ func AuthorizationMiddleware(
 ){
   return func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc){
       // Retrieve authentication from context
-      value := r.Context().Value(principalKey).(UserDetails)
+      value := r.Context().Value(PrincipalKey).(UserDetails)
 
       if mgr.Authorize(value, roles) {
         next(rw, r)

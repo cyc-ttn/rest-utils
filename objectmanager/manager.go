@@ -1,6 +1,9 @@
 package objectmanager
 
-import "errors"
+import (
+  "errors"
+  "log"
+)
 
 // Object manager
 var objects = initManager()
@@ -17,6 +20,8 @@ func initManager()  map[string]interface{}{
 
 // Set sets an object into the manager for retrieval
 func Set(name string, obj interface{}) error{
+  log.Printf("Storing object '%s'", name)
+
   if _, ok := objects[name]; ok {
     return ErrDuplicateObject
   }
