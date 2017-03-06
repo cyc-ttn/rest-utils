@@ -1,60 +1,60 @@
 package provider
 
 import (
-  "net/http"
-  "strings"
+	"net/http"
+	"strings"
 
-  "luxe.technology/rest-utils/security"
+	"luxe.technology/rest-utils/security"
 )
 
 // TokenAuthenticationProvider is an implementation of AuthenticationProvider
 // which determines whether a token is part of the request
 type TokenAuthenticationProvider struct {
-  repository    * security.UserTokenRepository
+	repository *security.UserTokenRepository
 }
 
 // NewTokenAuthenticationProvider creates a new FormLoginAuthenticationProvider
-func NewTokenAuthenticationProvider(repo * security.UserTokenRepository) *TokenAuthenticationProvider{
-  return &TokenAuthenticationProvider{
-    repository: repo,
-  }
+func NewTokenAuthenticationProvider(repo *security.UserTokenRepository) *TokenAuthenticationProvider {
+	return &TokenAuthenticationProvider{
+		repository: repo,
+	}
 }
 
 // Authenticate authenticates based on the token
 // provides a UserDetails object if successful
-func (p * TokenAuthenticationProvider) Authenticate (
-  req * http.Request,
-  usrSrv security.UserDetailsService,
-) security.UserDetails {
+func (p *TokenAuthenticationProvider) Authenticate(
+	req *http.Request,
+	usrSrv security.UserDetailsService,
+) (security.UserDetails, map[string]interface{}, error) {
 
-  // Get the token from the Authentication Header
-  tokenStr := p.getBearerToken(req)
-  if tokenStr == "" {
-    return nil
-  }
+	// Get the token from the Authentication Header
+	tokenStr := p.getBearerToken(req)
+	if tokenStr == "" {
+		return nil, nil, ErrAuthenticationInvalid
+	}
 
-  // Get details from http.Request
-  token, err := p.repository.FindAndVerifyToken(tokenStr)
-  if err != nil {
-    return nil
-  }
+	// Get details from http.Request
+	token, err := p.repository.FindAndVerifyToken(tokenStr)
+	if err != nil {
+		return nil, nil, err
+	}
 
-  return token.User
+	return token.User, nil, nil
 }
 
-func (p * TokenAuthenticationProvider) getBearerToken(req * http.Request) string {
-  // Get the token from the Authentication Header
-  authHeader, ok := req.Header["Authorization"]
-  if !ok {
-    return ""
-  }
+func (p *TokenAuthenticationProvider) getBearerToken(req *http.Request) string {
+	// Get the token from the Authentication Header
+	authHeader, ok := req.Header["Authorization"]
+	if !ok {
+		return ""
+	}
 
-  for _, value := range authHeader {
-    parts := strings.Split(value, " ")
-    if strings.ToLower(parts[0]) == "bearer" {
-      return strings.TrimSpace(parts[1])
-    }
-  }
+	for _, value := range authHeader {
+		parts := strings.Split(value, " ")
+		if strings.ToLower(parts[0]) == "bearer" {
+			return strings.TrimSpace(parts[1])
+		}
+	}
 
-  return ""
+	return ""
 }
