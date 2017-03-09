@@ -2,6 +2,7 @@ package security
 
 import (
 	"context"
+	"errors"
 	"net/http"
 )
 
@@ -38,16 +39,24 @@ func AuthenticatorMiddleware(
 func AuthorizationMiddleware(
 	mgr *AuthenticationManager,
 	roles []Role,
-	failure func(http.ResponseWriter, *http.Request),
+	failure func(http.ResponseWriter, *http.Request, []error),
 ) func(http.ResponseWriter, *http.Request, http.HandlerFunc) {
 	return func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		// Retrieve authentication from context
-		value := r.Context().Value(PrincipalKey).(UserDetails)
 
-		if mgr.Authorize(value, roles) {
+		defErr := []error{ errors.New("You are unauthorized to view this resource") }
+
+		// Retrieve authentication from context
+		value := r.Context().Value(PrincipalKey).(map[string]interface{})
+		if value == nil {
+			failure(rw, r, defErr)
+			return
+		}
+
+		usr := value["user"].(UserDetails)
+		if mgr.Authorize(usr, roles) {
 			next(rw, r)
 		} else {
-			failure(rw, r)
+			failure(rw, r, defErr)
 		}
 	}
 }

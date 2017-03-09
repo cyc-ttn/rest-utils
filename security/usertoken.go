@@ -9,8 +9,11 @@ import (
 )
 
 var (
-	ErrInvalidToken = errors.New("Your token is invalid") //When a token is invalid
-	ErrExpiredToken = errors.New("Your token is expired") //When a token is expired
+	//ErrInvalidToken hen a token is invalid
+	ErrInvalidToken = errors.New("Your token is invalid")
+
+ 	//ErrExpiredToken When a token is expired
+ 	ErrExpiredToken = errors.New("Your token is expired")
 )
 
 // UserToken stores details about the user token
@@ -36,7 +39,8 @@ func NewUserTokenRepository(signKey string) *UserTokenRepository {
 // GenerateToken generates a token based on the request
 func (r *UserTokenRepository) GenerateToken(req *http.Request) (string, error) {
 
-	usr := req.Context().Value(PrincipalKey).(UserDetails)
+	allDetails := req.Context().Value(PrincipalKey).(map[string]interface{})
+	usr := allDetails["user"].(UserDetails)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"expiry":  time.Now().Add(time.Hour * 5).Unix(),
@@ -54,6 +58,13 @@ func (r *UserTokenRepository) GenerateToken(req *http.Request) (string, error) {
 	}
 
 	r.tokens[str] = t
+
+	go func(){
+		select {
+		case <- time.After( time.Hour * 5 ):
+			delete(r.tokens, str)
+		}
+	}()
 
 	return str, nil
 }
@@ -83,10 +94,6 @@ func (r *UserTokenRepository) FindAndVerifyToken(str string) (*UserToken, error)
 	}
 
 	if ve, ok := err.(*jwt.ValidationError); ok {
-		// if ve.Errors & jwt.ValidationErrorMalformed != 0 {
-		//   return nil, ErrInvalidToken
-		// }
-		//
 		if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
 			return nil, ErrExpiredToken
 		}
