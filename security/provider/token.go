@@ -51,7 +51,7 @@ func (p *TokenAuthenticationProvider) getBearerToken(req *http.Request) string {
 
 	for _, value := range authHeader {
 		parts := strings.Split(value, " ")
-		if strings.ToLower(parts[0]) == "bearer" {
+		if strings.ToLower(parts[0]) == "bearer" && len(parts) >= 2 {
 			return strings.TrimSpace(parts[1])
 		}
 	}

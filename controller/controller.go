@@ -33,6 +33,11 @@ func PrefixRequestWithHandler(value string, h http.Handler){
   router.PathPrefix(value).Handler( h )
 }
 
+// PrefixRequestWithHandlerFunc prefixes the request with Middleware
+func PrefixRequestWithHandlerFunc(value string, h http.HandlerFunc){
+  router.PathPrefix(value).HandlerFunc(h)
+}
+
 // MapRequestToSubRouter maps a request to the sub router
 func MapRequestToSubRouter(
   r *mux.Router,

@@ -61,12 +61,17 @@ func (r *UserTokenRepository) GenerateToken(req *http.Request) (string, error) {
 
 	go func(){
 		select {
-		case <- time.After( time.Hour * 5 ):
-			delete(r.tokens, str)
+		case <- time.After( time.Hour * 6 ):
+			r.RemoveToken(str)
 		}
 	}()
 
 	return str, nil
+}
+
+// RemoveToken removes a token from the repository
+func (r *UserTokenRepository) RemoveToken(str string) {
+	delete(r.tokens, str)
 }
 
 // FindToken returns the token matching the string
