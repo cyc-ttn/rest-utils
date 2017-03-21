@@ -28,7 +28,7 @@ func (p *TokenAuthenticationProvider) Authenticate(
 ) (security.UserDetails, map[string]interface{}, error) {
 
 	// Get the token from the Authentication Header
-	tokenStr := p.getBearerToken(req)
+	tokenStr := GetBearerToken(req)
 	if tokenStr == "" {
 		return nil, nil, ErrAuthenticationInvalid
 	}
@@ -42,7 +42,8 @@ func (p *TokenAuthenticationProvider) Authenticate(
 	return token.User, nil, nil
 }
 
-func (p *TokenAuthenticationProvider) getBearerToken(req *http.Request) string {
+// Returns the Bearer Token from request
+func GetBearerToken(req *http.Request) string {
 	// Get the token from the Authentication Header
 	authHeader, ok := req.Header["Authorization"]
 	if !ok {
