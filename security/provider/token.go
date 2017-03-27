@@ -10,13 +10,13 @@ import (
 // TokenAuthenticationProvider is an implementation of AuthenticationProvider
 // which determines whether a token is part of the request
 type TokenAuthenticationProvider struct {
-	repository *security.UserTokenRepository
+	Repository *security.UserTokenRepository
 }
 
 // NewTokenAuthenticationProvider creates a new FormLoginAuthenticationProvider
 func NewTokenAuthenticationProvider(repo *security.UserTokenRepository) *TokenAuthenticationProvider {
 	return &TokenAuthenticationProvider{
-		repository: repo,
+		Repository: repo,
 	}
 }
 
@@ -34,15 +34,15 @@ func (p *TokenAuthenticationProvider) Authenticate(
 	}
 
 	// Get details from http.Request
-	token, err := p.repository.FindAndVerifyToken(tokenStr)
+	token, err := p.Repository.FindAndVerifyToken(tokenStr)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return token.User, nil, nil
+	return usrSrv.RefreshUserDetails(token.User), nil, nil
 }
 
-// Returns the Bearer Token from request
+// GetBearerToken Returns the Bearer Token from request
 func GetBearerToken(req *http.Request) string {
 	// Get the token from the Authentication Header
 	authHeader, ok := req.Header["Authorization"]

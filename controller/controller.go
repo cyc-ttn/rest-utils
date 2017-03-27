@@ -8,6 +8,7 @@ package controller;
 import (
   "net/http"
   "github.com/gorilla/mux"
+  "github.com/urfave/negroni"
 )
 
 // Main Router
@@ -36,6 +37,26 @@ func PrefixRequestWithHandler(value string, h http.Handler){
 // PrefixRequestWithHandlerFunc prefixes the request with Middleware
 func PrefixRequestWithHandlerFunc(value string, h http.HandlerFunc){
   router.PathPrefix(value).HandlerFunc(h)
+}
+
+// CreateSubrouterWithMiddleware provides a subrouter for use for middleware
+func CreateSubrouterWithMiddleware(
+  value string,
+  h... negroni.Handler,
+) * mux.Router {
+
+  r := mux.NewRouter().PathPrefix(value).Subrouter().StrictSlash(true)
+
+  handlers := make([]negroni.Handler, len(h)+1)
+  copy(handlers, h)
+  handlers[ len(h) ] = negroni.Wrap(r)
+
+  PrefixRequestWithHandler(
+    value,
+    negroni.New(handlers...),
+  )
+
+  return r
 }
 
 // MapRequestToSubRouter maps a request to the sub router

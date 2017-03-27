@@ -60,3 +60,12 @@ func AuthorizationMiddleware(
 		}
 	}
 }
+
+// GetUserFromRequest - Gets the user from the request!
+func GetUserFromRequest(req * http.Request) UserDetails {
+	principalAsIf := req.Context().Value(PrincipalKey)
+	if principalAsIf == nil { return nil }
+
+	principal := principalAsIf.(map[string]interface{})
+	return principal["user"].(UserDetails)
+}

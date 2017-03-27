@@ -6,6 +6,7 @@ import (
 
 // UserDetailsService provides user details for the proper user
 type UserDetailsService interface {
+	RefreshUserDetails( UserDetails ) UserDetails
 	LoadByUsername(string) UserDetails
 }
 
