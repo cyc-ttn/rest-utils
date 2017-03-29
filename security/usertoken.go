@@ -87,7 +87,7 @@ func (r *UserTokenRepository) GenerateTokenWithExpiry(req *http.Request, expiry 
 
 	go func(){
 		select {
-		case <- time.After( time.Until( time.Unix(expiry,0) ) ):
+		case <- time.After( time.Unix(expiry,0).Sub(time.Now()) ):
 			r.RemoveToken(str)
 		}
 	}()
