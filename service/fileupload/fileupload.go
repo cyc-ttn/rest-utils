@@ -43,9 +43,9 @@ func init(){
 }
 
 // Initialize initializes a file upload
-func (s * Service) Initialize( length uint, extension string, data []byte ) (string, bool) {
+func (s * Service) Initialize( length uint, extension string, data []byte ) (string, bool, error) {
   id, err := uuid.NewV4()
-  if err != nil { return "", false }
+  if err != nil { return "", false, err }
 
   idAsStr := id.String()
   log.Printf("ID: %s", idAsStr)
@@ -61,8 +61,8 @@ func (s * Service) Initialize( length uint, extension string, data []byte ) (str
     // Try to write
     f.Buffer = data
     filepath, err := f.write(idAsStr)
-    if err != nil { return "", false }
-    return filepath, true
+    if err != nil { return "", false, err}
+    return filepath, true, nil
   }
 
   buf := make([]byte, lengthOfdata, length)
@@ -71,7 +71,7 @@ func (s * Service) Initialize( length uint, extension string, data []byte ) (str
   f.Buffer = buf
   s.files[ idAsStr ] = f
 
-  return idAsStr, false
+  return idAsStr, false, nil
 }
 
 // Upload adds data to an existing file upload
