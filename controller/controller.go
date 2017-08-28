@@ -45,7 +45,7 @@ func CreateSubrouterWithMiddleware(
   h... negroni.Handler,
 ) * mux.Router {
 
-  r := mux.NewRouter().PathPrefix(value).Subrouter().StrictSlash(true)
+  r := mux.NewRouter().PathPrefix(value).Subrouter()
 
   handlers := make([]negroni.Handler, len(h)+1)
   copy(handlers, h)

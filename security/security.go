@@ -25,6 +25,7 @@ func AuthenticatorMiddleware(
 	failure func(http.ResponseWriter, *http.Request, []error),
 ) func(http.ResponseWriter, *http.Request, http.HandlerFunc) {
 	return func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+
 		userDetails, info, errs := mgr.Authenticate(r)
 		if errs != nil {
 			failure(rw, r, errs)
@@ -47,6 +48,7 @@ func AuthorizationMiddleware(
 
 		// Retrieve authentication from context
 		value := r.Context().Value(PrincipalKey).(map[string]interface{})
+
 		if value == nil {
 			failure(rw, r, defErr)
 			return

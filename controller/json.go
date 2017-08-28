@@ -48,6 +48,23 @@ func JSONHandlerFunc( f func(http.ResponseWriter,*http.Request,map[string]interf
   return h
 }
 
+// JSONHandlerFuncWithErrorHandler wraps the input function and passes in data as a JSON variable,
+// also takes in an error function
+func JSONHandlerFuncWithErrorHandler(
+  f func(http.ResponseWriter,*http.Request,map[string]interface{}),
+  e func(http.ResponseWriter, *http.Request, error),
+) http.HandlerFunc {
+
+  return func(w http.ResponseWriter, r * http.Request){
+    t, err := JSONFromRequest(r)
+    if err != nil {
+      e(w, r, err)
+    }else{
+      f(w, r, t)
+    }
+  }
+}
+
 // JSONWriter Writes JSON as output
 func JSONWriter( w http.ResponseWriter, object interface{} ) error {
 
@@ -60,4 +77,15 @@ func JSONWriter( w http.ResponseWriter, object interface{} ) error {
 
   w.Write( bytes )
   return nil
+}
+
+// JSONWriterWithError is a util method that allows error control. Only sends back InternalServerError.
+func JSONWriterWithError(w http.ResponseWriter, object interface{}, err error ) error {
+
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError )
+    return nil
+  }
+
+  return JSONWriter(w, object)
 }

@@ -113,7 +113,10 @@ func (r *UserTokenRepository) RemoveToken(str string) {
 
 // FindToken returns the token matching the string
 func (r *UserTokenRepository) FindToken(str string) *UserToken {
+	r.mu.RLock()
 	token, ok := r.tokens[str]
+	r.mu.RUnlock()
+
 	if !ok {
 		return nil
 	}
