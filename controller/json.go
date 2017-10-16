@@ -37,6 +37,21 @@ func JSONFromRequestToStruct( r * http.Request, v interface{}) error{
   return nil
 }
 
+// JSONFromRequestToArray returns an array 
+func JSONFromRequestToArray( r * http.Request ) ([]interface{}, error ){
+  decoder := json.NewDecoder(r.Body)
+
+  t := make([]interface{}, 0)
+  err := decoder.Decode(&t)
+  defer r.Body.Close()
+
+  if err != nil {
+    return nil, err
+  }
+
+  return t, nil
+}
+
 // JSONHandlerFunc Wraps the input function and passes in data as a JSON variable
 func JSONHandlerFunc( f func(http.ResponseWriter,*http.Request,map[string]interface{},error ) ) http.HandlerFunc {
 
